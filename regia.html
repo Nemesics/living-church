@@ -433,9 +433,46 @@
   }
   .connecting.visible { display:block; }
 
+  /* ── MOBILE WARNING ────────────────────────────────────── */
+  .mobile-warning {
+    display: none;
+    position: fixed; inset: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(0,0,0,0.2) 0%, transparent 60%);
+    z-index: 9999;
+    align-items: center; justify-content: center;
+    padding: 32px; text-align: center;
+  }
+  .mobile-warning-card {
+    background: var(--surface);
+    border: 1px solid var(--border-mid);
+    border-radius: 20px;
+    padding: 40px 32px;
+    max-width: 340px;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.35);
+  }
+  .mobile-warning-icon { font-size: 40px; margin-bottom: 20px; }
+  .mobile-warning-card h2 {
+    font-family: 'Lora', serif; font-size: 20px; font-weight: 600;
+    color: var(--text); margin-bottom: 12px;
+  }
+  .mobile-warning-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  @media(max-width: 960px) { .mobile-warning { display: flex; } }
+
 </style>
 </head>
 <body>
+
+<!-- MOBILE WARNING -->
+<div class="mobile-warning">
+  <div class="mobile-warning-card">
+    <div class="mobile-warning-icon">💻</div>
+    <h2>Usa un laptop o tablet</h2>
+    <p>Il pannello regia è progettato per schermi più grandi. Aprilo da un laptop o tablet per accedere a tutte le funzioni.</p>
+  </div>
+</div>
 
 <!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
