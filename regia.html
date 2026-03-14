@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Living Church — Regia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg:          #173943;
+    --surface:     #122e36;
+    --surface2:    #0f2730;
+    --border:      rgba(255,255,255,0.1);
+    --border-mid:  rgba(255,255,255,0.18);
+    --text:        #ffffff;
+    --muted:       rgba(255,255,255,0.45);
+    --gold:        #c8a96e;
+    --gold-dim:    rgba(200,169,110,0.15);
+    --green:       #6abf8a;
+    --green-dim:   rgba(106,191,138,0.12);
+    --red:         #e07878;
+    --red-dim:     rgba(224,120,120,0.12);
+    --blue:        #7ab8d4;
+    --blue-dim:    rgba(122,184,212,0.15);
+    --yellow:      #d4b86a;
+    --yellow-dim:  rgba(212,184,106,0.15);
+    --white-10:    rgba(255,255,255,0.08);
+    --topbar:      #1e4d59;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family:'Source Sans 3', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(255,255,255,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(0,0,0,0.15) 0%, transparent 50%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── LOGIN ─────────────────────────────────────────────── */
+  .login-overlay {
+    position:fixed; inset:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(0,0,0,0.2) 0%, transparent 60%);
+    display:flex; align-items:center; justify-content:center;
+    z-index:999; padding:24px;
+  }
+  .login-overlay.hidden { display:none; }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border-mid);
+    border-radius: 20px;
+    padding: 40px 36px;
+    width:100%; max-width:380px;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.35);
+    animation: fadeUp 0.45s cubic-bezier(.22,.68,0,1.2) both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .login-logo { display:flex; justify-content:center; margin-bottom:20px; }
+  .login-card h2 {
+    font-family:'Lora',serif; font-size:22px; font-weight:600;
+    color:var(--text); text-align:center; margin-bottom:6px;
+  }
+  .login-card p {
+    font-size:13px; color:var(--muted);
+    text-align:center; margin-bottom:32px; line-height:1.6;
+  }
+  .login-label {
+    display:block; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--muted); margin-bottom:8px;
+  }
+  .login-input {
+    width:100%; padding:13px 16px;
+    background: rgba(0,0,0,0.2);
+    border: 1.5px solid var(--border-mid);
+    border-radius:10px;
+    font-family:'Source Sans 3',sans-serif;
+    font-size:15px; color:var(--text); outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+    margin-bottom:8px; letter-spacing:0.05em;
+  }
+  .login-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-dim); }
+  .login-input.error {
+    border-color:var(--red); box-shadow:0 0 0 3px var(--red-dim);
+    animation:shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%,100%{ transform:translateX(0); }
+    20%    { transform:translateX(-6px); }
+    40%    { transform:translateX(6px); }
+    60%    { transform:translateX(-4px); }
+    80%    { transform:translateX(4px); }
+  }
+  .login-error {
+    font-size:12px; color:var(--red);
+    margin-bottom:16px; min-height:18px; text-align:center;
+  }
+  .login-btn {
+    width:100%; padding:14px;
+    background:var(--gold); color:var(--bg);
+    border:none; border-radius:10px;
+    font-family:'Source Sans 3',sans-serif;
+    font-size:15px; font-weight:700; cursor:pointer;
+    transition:background 0.2s, transform 0.1s, box-shadow 0.2s;
+    letter-spacing:0.02em;
+  }
+  .login-btn:hover:not(:disabled) {
+    background:#d9bc84;
+    box-shadow:0 6px 20px rgba(200,169,110,0.3);
+    transform:translateY(-1px);
+  }
+  .login-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* ── APP ───────────────────────────────────────────────── */
+  .app-content { display:none; }
+  .app-content.visible { display:block; }
+
+  /* ── TOPBAR ─────────────────────────────────────────────── */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; height:56px;
+    background: var(--topbar);
+    border-bottom:1px solid var(--border);
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    gap:16px;
+  }
+  .topbar-left { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+  .live-dot {
+    width:8px; height:8px; background:var(--green);
+    border-radius:50%; animation:pulse 2s infinite; flex-shrink:0;
+  }
+  @keyframes pulse {
+    0%,100%{ box-shadow:0 0 0 0 rgba(106,191,138,0.5); }
+    50%    { box-shadow:0 0 0 6px rgba(106,191,138,0); }
+  }
+  .topbar-logo { display:flex; align-items:center; gap:10px; }
+  .topbar h1 {
+    font-family:'Lora',serif; font-size:17px; font-weight:600;
+    color:var(--text); letter-spacing:-0.01em;
+  }
+  .topbar-divider { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+  .shortcut-hint {
+    display:flex; align-items:center; gap:10px;
+    font-size:11px; color:var(--muted); flex-wrap:wrap;
+  }
+  .shortcut-hint span { display:flex; align-items:center; gap:4px; }
+  .kbd {
+    display:inline-flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.2);
+    border-radius:4px; padding:1px 6px;
+    font-size:10px; font-weight:700; color:rgba(255,255,255,0.6);
+    font-family:monospace; line-height:1.7;
+  }
+  .topbar-right { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+  .clear-btn {
+    padding:7px 12px;
+    background:rgba(224,120,120,0.25); color:var(--red);
+    border:1px solid rgba(224,120,120,0.4); border-radius:8px;
+    font-size:12px; font-weight:600; cursor:pointer;
+    transition:background 0.2s; white-space:nowrap;
+    font-family:'Source Sans 3',sans-serif;
+  }
+  .clear-btn:hover { background:rgba(224,120,120,0.35); }
+  .logout-btn {
+    padding:7px 12px; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85);
+    border:1px solid rgba(255,255,255,0.25); border-radius:8px;
+    font-size:12px; font-weight:600; cursor:pointer;
+    transition:background 0.2s, color 0.2s; white-space:nowrap;
+    font-family:'Source Sans 3',sans-serif;
+  }
+  .logout-btn:hover { background:rgba(255,255,255,0.18); color:var(--text); }
+
+  @media(max-width:600px) {
+    .topbar { padding:0 12px; }
+    .topbar h1 { font-size:15px; }
+    .clear-btn { font-size:11px; padding:6px 10px; }
+    .logout-btn { font-size:11px; padding:6px 10px; }
+    .topbar-right { gap:6px; }
+    .shortcut-hint { display:none; }
+    .topbar-divider { display:none; }
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .layout {
+    display:grid; grid-template-columns:1fr 1fr 1fr;
+    gap:2px; background:var(--bg);
+    height:calc(100vh - 56px); margin-top:56px;
+  }
+  @media(max-width:900px){
+    .layout{ grid-template-columns:1fr 1fr; height:auto; }
+    body{ overflow:auto; }
+  }
+  @media(max-width:600px){
+    .layout{ grid-template-columns:1fr; }
+  }
+
+  .column { background:var(--surface2); display:flex; flex-direction:column; overflow:hidden; }
+
+  .col-header {
+    padding:16px 18px 14px; background:#0f2730;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .col-title { font-size:14px; font-weight:700; color:rgba(255,255,255,0.9); margin-bottom:2px; }
+  .col-subtitle { font-size:12px; color:var(--muted); }
+
+  .col-count {
+    font-size:13px; font-weight:700; color:var(--muted);
+    background:rgba(0,0,0,0.2);
+    padding:4px 12px; border-radius:20px; flex-shrink:0;
+    transition:background 0.3s, color 0.3s, border-color 0.3s;
+    border:1px solid transparent;
+  }
+  .col-count.alert {
+    background:var(--gold-dim); color:var(--gold);
+    border-color:rgba(200,169,110,0.3);
+  }
+
+  .col-body { flex:1; overflow-y:auto; padding:12px; }
+  .col-body::-webkit-scrollbar { width:3px; }
+  .col-body::-webkit-scrollbar-track { background:transparent; }
+  .col-body::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  /* ── CARDS ─────────────────────────────────────────────── */
+  .q-card {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px; padding:14px 16px;
+    margin-bottom:8px;
+    transition:border-color 0.2s, opacity 0.22s, transform 0.22s;
+    animation:slideIn 0.28s ease both;
+  }
+  @keyframes slideIn {
+    from{ opacity:0; transform:translateY(8px); }
+    to  { opacity:1; transform:translateY(0); }
+  }
+  .q-card.exiting {
+    opacity:0 !important;
+    transform:scale(0.96) translateY(-4px) !important;
+    pointer-events:none;
+  }
+  .q-card:hover { border-color:var(--border-mid); }
+  .q-card.approvata {
+    border-left:3px solid var(--green);
+    cursor:grab;
+  }
+  .q-card.approvata:active { cursor:grabbing; }
+  .q-card.drag-over {
+    border-color:var(--gold) !important;
+    background:rgba(200,169,110,0.05);
+  }
+  .q-card.dragging { opacity:0.3; }
+  .q-card.fatta { opacity:0.3; }
+
+  .q-text {
+    font-size:15px; line-height:1.65;
+    color:var(--text); margin-bottom:12px;
+    font-weight:300; font-family:'Lora',serif;
+  }
+  .q-meta {
+    display:flex; align-items:center;
+    justify-content:space-between; gap:6px; flex-wrap:wrap;
+  }
+  .q-time { font-size:11px; color:var(--muted); }
+  .q-actions { display:flex; gap:5px; flex-wrap:wrap; }
+
+  .btn-sm {
+    padding:7px 14px; border-radius:7px;
+    font-size:12px; font-weight:600; cursor:pointer; border:none;
+    transition:opacity 0.15s, transform 0.1s;
+    font-family:'Source Sans 3',sans-serif; white-space:nowrap;
+  }
+  .btn-sm:hover  { opacity:0.82; transform:scale(0.97); }
+  .btn-sm:active { transform:scale(0.94); }
+  .btn-approve { background:var(--green-dim); color:var(--green); border:1px solid rgba(106,191,138,0.25); }
+  .btn-done    { background:var(--blue-dim);  color:var(--blue);  border:1px solid rgba(122,184,212,0.25); }
+  .btn-delete  { background:var(--red-dim);   color:var(--red);   border:1px solid rgba(224,120,120,0.2); }
+  .btn-back    { background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(212,184,106,0.25); }
+
+  /* ── HIGHLIGHT ──────────────────────────────────────────── */
+  .highlight-box {
+    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(106,191,138,0.3);
+    border-radius:14px; padding:20px;
+    margin-bottom:14px;
+  }
+  .highlight-label {
+    font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.1em;
+    color:var(--green); margin-bottom:12px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .highlight-label::before {
+    content:''; display:inline-block;
+    width:7px; height:7px; background:var(--green);
+    border-radius:50%; animation:pulse 2s infinite;
+  }
+  .highlight-text {
+    font-family:'Lora',serif; font-size:20px;
+    line-height:1.6; color:var(--text); font-style:italic;
+  }
+  .highlight-empty { font-size:14px; color:var(--muted); font-style:italic; }
+
+  /* ── BADGE NUOVA ────────────────────────────────────────── */
+  .badge-new {
+    display:inline-block;
+    font-size:9px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--bg);
+    background:var(--gold); border-radius:4px;
+    padding:2px 6px; margin-left:8px;
+    vertical-align:middle; flex-shrink:0;
+  }
+
+  /* ── EDIT MODAL ─────────────────────────────────────────── */
+  .modal-overlay {
+    position:fixed; inset:0; z-index:200;
+    background:rgba(0,0,0,0.55);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px; backdrop-filter:blur(4px);
+    animation:fadeIn 0.2s ease both;
+  }
+  .modal-overlay.hidden { display:none; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  .modal-card {
+    background:var(--surface);
+    border:1px solid var(--border-mid);
+    border-radius:16px; padding:28px;
+    width:100%; max-width:520px;
+    box-shadow:0 24px 80px rgba(0,0,0,0.5);
+    animation:fadeUp 0.25s ease both;
+  }
+  .modal-title {
+    font-family:'Lora',serif; font-size:17px; font-weight:600;
+    color:var(--text); margin-bottom:4px;
+  }
+  .modal-subtitle {
+    font-size:12px; color:var(--muted); margin-bottom:18px; line-height:1.5;
+  }
+  .modal-label {
+    font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--muted); margin-bottom:6px; display:block;
+  }
+  .modal-original {
+    font-family:'Lora',serif; font-size:13px; color:var(--muted);
+    background:rgba(0,0,0,0.15); border:1px solid var(--border);
+    border-radius:8px; padding:10px 14px; margin-bottom:16px;
+    line-height:1.6; font-style:italic;
+  }
+  .modal-textarea {
+    width:100%; padding:12px 14px; min-height:90px;
+    background:rgba(0,0,0,0.2); border:1.5px solid var(--border-mid);
+    border-radius:10px; font-family:'Lora',serif;
+    font-size:15px; color:var(--text); outline:none; resize:vertical;
+    line-height:1.6; transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .modal-textarea:focus {
+    border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-dim);
+  }
+  .modal-actions {
+    display:flex; gap:8px; margin-top:18px; justify-content:flex-end;
+  }
+  .btn-modal-cancel {
+    padding:9px 18px; background:transparent; color:var(--muted);
+    border:1px solid var(--border); border-radius:8px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    font-family:'Source Sans 3',sans-serif;
+    transition:color 0.2s, border-color 0.2s;
+  }
+  .btn-modal-cancel:hover { color:var(--text); border-color:var(--border-mid); }
+  .btn-modal-save {
+    padding:9px 20px; background:var(--gold); color:var(--bg);
+    border:none; border-radius:8px;
+    font-size:13px; font-weight:700; cursor:pointer;
+    font-family:'Source Sans 3',sans-serif;
+    transition:background 0.2s;
+  }
+  .btn-modal-save:hover { background:#d9bc84; }
+
+  /* ── EMPTY ──────────────────────────────────────────────── */
+  .empty {
+    text-align:center; padding:40px 20px;
+    color:var(--muted); font-size:13px;
+    font-style:italic; line-height:1.7;
+  }
+  .empty-icon { font-size:24px; margin-bottom:10px; opacity:0.5; }
+
+  /* ── TOAST ──────────────────────────────────────────────── */
+  .toast-container {
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    z-index:500; pointer-events:none;
+  }
+  .toast {
+    padding:10px 20px; border-radius:10px;
+    font-size:13px; font-weight:600;
+    animation:toastIn 0.3s ease both;
+    pointer-events:none; white-space:nowrap;
+  }
+  .toast.error  { background:rgba(224,120,120,0.18); color:var(--red);   border:1px solid rgba(224,120,120,0.3); }
+  .toast.success{ background:rgba(106,191,138,0.15); color:var(--green); border:1px solid rgba(106,191,138,0.25); }
+  .toast.exiting{ animation:toastOut 0.3s ease both; }
+  @keyframes toastIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { from{opacity:1;transform:translateY(0)}   to{opacity:0;transform:translateY(6px)} }
+
+  .export-btn {
+    padding:7px 12px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);
+    border:1px solid rgba(255,255,255,0.2); border-radius:8px;
+    font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
+    font-family:'Source Sans 3',sans-serif; transition:background 0.2s;
+  }
+  .export-btn:hover { background:rgba(255,255,255,0.14); }
+
+  /* ── CONNECTING ─────────────────────────────────────────── */
+  .connecting {
+    position:fixed; bottom:20px; right:20px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:8px; padding:8px 14px;
+    font-size:12px; color:var(--muted); display:none;
+  }
+  .connecting.visible { display:block; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="52" height="57" viewBox="0 0 172 188">
+        <path d="M 77.44 173.87 C59.84,162.49 55.67,159.44 51.78,155.06 C45.22,147.70 40.53,139.78 37.45,130.85 L 34.56 122.50 L 34.20 92.25 L 33.85 62.00 L 44.49 62.00 C54.16,62.00 55.09,62.16 54.62,63.75 C54.34,64.71 53.81,67.19 53.44,69.25 C52.81,72.83 52.60,73.00 48.89,73.00 L 45.00 73.00 L 45.00 94.95 C45.00,119.66 45.69,124.43 50.74,134.81 C55.42,144.43 62.83,151.85 76.18,160.32 L 86.87 167.09 L 98.35 159.54 C111.37,150.98 117.13,145.13 122.22,135.32 C127.82,124.53 128.50,120.20 128.50,95.50 L 128.50 73.50 L 124.44 73.20 C120.43,72.91 120.36,72.83 119.36,67.95 C118.80,65.22 118.57,62.77 118.84,62.49 C119.11,62.22 123.76,62.00 129.17,62.00 L 139.00 62.00 L 139.00 90.34 C139.00,122.45 138.14,128.24 131.45,140.97 C125.66,151.98 118.34,159.18 102.27,169.69 C94.44,174.81 87.44,179.00 86.71,179.00 C85.99,179.00 81.81,176.69 77.44,173.87 ZM 70.74 121.50 C62.08,104.17 55.00,89.77 55.00,89.50 C55.00,89.22 69.40,89.00 87.00,89.00 L 119.01 89.00 L 103.00 121.00 C94.20,138.60 86.88,153.00 86.74,153.00 C86.60,153.00 79.40,138.82 70.74,121.50 ZM 93.99 115.01 C97.85,107.32 101.00,100.57 101.00,100.01 C101.00,99.38 95.63,99.00 86.50,99.00 C78.53,99.00 72.00,99.22 72.00,99.49 C72.00,100.15 86.40,129.00 86.73,129.00 C86.87,129.00 90.14,122.71 93.99,115.01 ZM 59.18 74.75 C59.66,65.67 62.00,59.36 68.50,49.57 C72.95,42.86 84.74,30.00 86.43,30.00 C90.05,30.00 107.32,51.64 111.29,61.16 C113.69,66.90 115.18,75.53 114.45,79.44 C113.78,82.98 113.75,83.00 108.54,83.00 L 103.29 83.00 L 103.76 78.12 C104.02,75.43 103.68,71.49 103.01,69.37 C101.37,64.14 94.97,53.48 90.26,48.10 L 86.40 43.70 L 81.67 49.60 C79.07,52.84 75.27,58.85 73.22,62.95 C70.06,69.28 69.51,71.34 69.57,76.70 L 69.65 83.00 L 64.20 83.00 L 58.75 83.00 L 59.18 74.75 Z" fill="white"/>
+      </svg>
+    </div>
+    <h2>Accesso Regia</h2>
+    <p>Inserisci la password per accedere al pannello di moderazione.</p>
+    <label class="login-label" for="passwordInput">Password</label>
+    <input class="login-input" type="password" id="passwordInput" placeholder="••••••••••" autocomplete="current-password"/>
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Entra</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-content" id="appContent">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="live-dot"></div>
+      <div class="topbar-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="24" viewBox="0 0 172 188">
+          <path d="M 77.44 173.87 C59.84,162.49 55.67,159.44 51.78,155.06 C45.22,147.70 40.53,139.78 37.45,130.85 L 34.56 122.50 L 34.20 92.25 L 33.85 62.00 L 44.49 62.00 C54.16,62.00 55.09,62.16 54.62,63.75 C54.34,64.71 53.81,67.19 53.44,69.25 C52.81,72.83 52.60,73.00 48.89,73.00 L 45.00 73.00 L 45.00 94.95 C45.00,119.66 45.69,124.43 50.74,134.81 C55.42,144.43 62.83,151.85 76.18,160.32 L 86.87 167.09 L 98.35 159.54 C111.37,150.98 117.13,145.13 122.22,135.32 C127.82,124.53 128.50,120.20 128.50,95.50 L 128.50 73.50 L 124.44 73.20 C120.43,72.91 120.36,72.83 119.36,67.95 C118.80,65.22 118.57,62.77 118.84,62.49 C119.11,62.22 123.76,62.00 129.17,62.00 L 139.00 62.00 L 139.00 90.34 C139.00,122.45 138.14,128.24 131.45,140.97 C125.66,151.98 118.34,159.18 102.27,169.69 C94.44,174.81 87.44,179.00 86.71,179.00 C85.99,179.00 81.81,176.69 77.44,173.87 ZM 70.74 121.50 C62.08,104.17 55.00,89.77 55.00,89.50 C55.00,89.22 69.40,89.00 87.00,89.00 L 119.01 89.00 L 103.00 121.00 C94.20,138.60 86.88,153.00 86.74,153.00 C86.60,153.00 79.40,138.82 70.74,121.50 ZM 93.99 115.01 C97.85,107.32 101.00,100.57 101.00,100.01 C101.00,99.38 95.63,99.00 86.50,99.00 C78.53,99.00 72.00,99.22 72.00,99.49 C72.00,100.15 86.40,129.00 86.73,129.00 C86.87,129.00 90.14,122.71 93.99,115.01 ZM 59.18 74.75 C59.66,65.67 62.00,59.36 68.50,49.57 C72.95,42.86 84.74,30.00 86.43,30.00 C90.05,30.00 107.32,51.64 111.29,61.16 C113.69,66.90 115.18,75.53 114.45,79.44 C113.78,82.98 113.75,83.00 108.54,83.00 L 103.29 83.00 L 103.76 78.12 C104.02,75.43 103.68,71.49 103.01,69.37 C101.37,64.14 94.97,53.48 90.26,48.10 L 86.40 43.70 L 81.67 49.60 C79.07,52.84 75.27,58.85 73.22,62.95 C70.06,69.28 69.51,71.34 69.57,76.70 L 69.65 83.00 L 64.20 83.00 L 58.75 83.00 L 59.18 74.75 Z" fill="white" opacity="0.9"/>
+        </svg>
+        <h1>Regia</h1>
+    </div>
+      <div class="topbar-divider"></div>
+      <div class="shortcut-hint">
+        <span><kbd class="kbd">A</kbd> approva</span>
+        <span><kbd class="kbd">F</kbd> fatta</span>
+        <span><kbd class="kbd">Canc</kbd> elimina</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="export-btn" onclick="esportaSessione()">↓ Esporta</button>
+      <button class="clear-btn" onclick="clearAll()">Svuota sessione</button>
+      <button class="logout-btn" onclick="doLogout()">Esci</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- COL 1: In attesa -->
+    <div class="column">
+      <div class="col-header">
+        <div>
+          <div class="col-title">In attesa</div>
+          <div class="col-subtitle">Approva o elimina</div>
+        </div>
+        <span class="col-count" id="countAttesa">0</span>
+      </div>
+      <div class="col-body" id="listAttesa">
+        <div class="empty"><div class="empty-icon">○</div>Nessuna domanda ancora.<br>In attesa…</div>
+      </div>
+    </div>
+
+    <!-- COL 2: Approvate -->
+    <div class="column">
+      <div class="col-header">
+        <div>
+          <div class="col-title">Approvate</div>
+          <div class="col-subtitle">Trascina per riordinare</div>
+        </div>
+        <span class="col-count" id="countApprovate">0</span>
+      </div>
+      <div class="col-body" id="listApprovate">
+        <div class="empty"><div class="empty-icon">○</div>Approva le domande<br>dalla colonna sinistra</div>
+      </div>
+    </div>
+
+    <!-- COL 3: In corso / Fatte -->
+    <div class="column">
+      <div class="col-header">
+        <div>
+          <div class="col-title">In corso / Fatte</div>
+          <div class="col-subtitle">Domanda attualmente letta</div>
+        </div>
+        <span class="col-count" id="countFatte">0</span>
+      </div>
+      <div class="col-body">
+        <div class="highlight-box">
+          <div class="highlight-label">Domanda corrente</div>
+          <div id="currentQuestion" class="highlight-empty">Nessuna domanda in corso</div>
+        </div>
+        <div id="listFatte"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="connecting" id="connectingMsg">⏳ Connessione…</div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay hidden" id="editModal">
+    <div class="modal-card">
+      <div class="modal-title">Modifica domanda</div>
+      <div class="modal-subtitle">Puoi riformulare il testo manualmente o chiedere a AI di suggerire una versione migliorata.</div>
+      <span class="modal-label">Testo originale</span>
+      <div class="modal-original" id="modalOriginal"></div>
+      <span class="modal-label">Testo modificato</span>
+      <textarea class="modal-textarea" id="modalTextarea" rows="3" placeholder="Scrivi o modifica il testo…"></textarea>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="chiudiModal()">Annulla</button>
+        <button class="btn-modal-save" onclick="salvaModifica()">Salva e approva</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot,
+    doc, getDoc, updateDoc, deleteDoc, getDocs, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyApq1nm6YDTHguHKF1rwAKa7Jxkr1hU7hU",
+    authDomain: "living-church.firebaseapp.com",
+    projectId: "living-church",
+    storageBucket: "living-church.firebasestorage.app",
+    messagingSenderId: "779934743570",
+    appId: "1:779934743570:web:fa7b9ddb63f5182d17eccb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  let allDocs       = {};
+  let approvedOrder = [];
+  let unsubscribe   = null;
+  let editingId     = null;
+  const SESSION_KEY = 'regia_auth';
+  const NEW_THRESHOLD_MS = 2 * 60 * 1000; // 2 minuti
+
+  // ── UTILS ─────────────────────────────────────────────────
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function relativeTime(ts) {
+    if (!ts) return '–';
+    const d   = ts.toDate ? ts.toDate() : new Date(ts);
+    const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (sec < 60)   return 'Adesso';
+    if (sec < 3600) return `${Math.floor(sec/60)} min fa`;
+    return d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function isNew(ts) {
+    if (!ts) return false;
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return (Date.now() - d.getTime()) < NEW_THRESHOLD_MS;
+  }
+
+  // Refresh timestamps every 30s
+  setInterval(() => {
+    document.querySelectorAll('.q-time[data-ts]').forEach(el => {
+      const ms = Number(el.dataset.ts);
+      if (!ms) return;
+      const sec = Math.floor((Date.now() - ms) / 1000);
+      if (sec < 60)        el.textContent = 'Adesso';
+      else if (sec < 3600) el.textContent = `${Math.floor(sec/60)} min fa`;
+    });
+    // Hide "Nuova" badges after threshold
+    document.querySelectorAll('.badge-new[data-ts]').forEach(el => {
+      const ms = Number(el.dataset.ts);
+      if (Date.now() - ms >= NEW_THRESHOLD_MS) el.remove();
+    });
+  }, 30000);
+
+  // ── TAB TITLE COUNTER ────────────────────────────────────
+  function updateTabTitle(n) {
+    document.title = n > 0 ? `(${n}) Regia — Living Church` : 'Living Church — Regia';
+  }
+
+  // ── TOAST ─────────────────────────────────────────────────
+  function showToast(msg, type = 'error') {
+    const container = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => {
+      t.classList.add('exiting');
+      setTimeout(() => t.remove(), 320);
+    }, 2800);
+  }
+
+  // ── EXIT ANIMATION ────────────────────────────────────────
+  function withExitAnim(id, action) {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) { el.classList.add('exiting'); setTimeout(action, 210); }
+    else action();
+  }
+
+  // ── SESSION ───────────────────────────────────────────────
+  function enterApp() {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('appContent').classList.add('visible');
+    startListener();
+  }
+
+  (async function checkSession() {
+    const saved = localStorage.getItem(SESSION_KEY);
+    if (!saved) return;
+    try {
+      const snap = await getDoc(doc(db, 'config', 'regia'));
+      if (snap.exists() && saved === snap.data().password) enterApp();
+      else localStorage.removeItem(SESSION_KEY);
+    } catch(err) { console.error(err); }
+  })();
+
+  // ── LOGIN ─────────────────────────────────────────────────
+  document.getElementById('passwordInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  window.doLogin = async function() {
+    const input = document.getElementById('passwordInput');
+    const btn   = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    const pwd   = input.value;
+    if (!pwd) return;
+    btn.disabled = true; btn.textContent = 'Verifica…'; errEl.textContent = '';
+    try {
+      const snap = await getDoc(doc(db, 'config', 'regia'));
+      if (!snap.exists()) throw new Error('config/regia non trovato');
+      if (pwd === snap.data().password) {
+        localStorage.setItem(SESSION_KEY, pwd);
+        enterApp();
+      } else {
+        input.classList.add('error');
+        errEl.textContent = 'Password non corretta. Riprova.';
+        input.value = ''; input.focus();
+        setTimeout(() => input.classList.remove('error'), 500);
+      }
+    } catch(err) {
+      console.error(err);
+      errEl.textContent = 'Errore di connessione. Controlla la rete.';
+    }
+    btn.disabled = false; btn.textContent = 'Entra';
+  };
+
+  window.doLogout = function() {
+    localStorage.removeItem(SESSION_KEY);
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    allDocs = {}; approvedOrder = [];
+    updateTabTitle(0);
+    document.getElementById('appContent').classList.remove('visible');
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('loginError').textContent = '';
+  };
+
+  // ── RENDER ────────────────────────────────────────────────
+  function render() {
+    const docs   = Object.values(allDocs);
+    const attesa = docs.filter(d => d.stato==='in_attesa')
+                       .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+
+    const approvedMap = Object.fromEntries(
+      docs.filter(d => d.stato==='approvata').map(d => [d.id, d])
+    );
+    approvedOrder = approvedOrder.filter(id => approvedMap[id]);
+    Object.keys(approvedMap).forEach(id => {
+      if (!approvedOrder.includes(id)) approvedOrder.push(id);
+    });
+    const approvate = approvedOrder.map(id => approvedMap[id]).filter(Boolean);
+
+    const fatte = docs.filter(d => d.stato==='fatta')
+                      .sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0));
+
+    // Tab title + counter
+    updateTabTitle(attesa.length);
+    const cA = document.getElementById('countAttesa');
+    cA.textContent = attesa.length;
+    cA.classList.toggle('alert', attesa.length >= 5);
+    document.getElementById('countApprovate').textContent = approvate.length;
+    document.getElementById('countFatte').textContent     = fatte.length;
+
+    // ── In attesa
+    document.getElementById('listAttesa').innerHTML = attesa.length === 0
+      ? '<div class="empty"><div class="empty-icon">○</div>Nessuna domanda ancora.<br>In attesa…</div>'
+      : attesa.map(d => {
+          const ms      = d.timestamp?.toDate ? d.timestamp.toDate().getTime() : '';
+          const newBadge = isNew(d.timestamp) ? `<span class="badge-new" data-ts="${ms}">Nuova</span>` : '';
+          return `<div class="q-card" data-id="${d.id}">
+            <div class="q-text">${escHtml(d.testo)}${newBadge}</div>
+            <div class="q-meta">
+              <span class="q-time" data-ts="${ms}">${relativeTime(d.timestamp)}</span>
+              <div class="q-actions">
+                <button class="btn-sm btn-approve" onclick="approva('${d.id}')">✓ Approva</button>
+                <button class="btn-sm btn-ai"      onclick="apriModifica('${d.id}')">✎ Modifica</button>
+                <button class="btn-sm btn-delete"  onclick="elimina('${d.id}')">✕ Elimina</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+    // ── Approvate (draggable)
+    document.getElementById('listApprovate').innerHTML = approvate.length === 0
+      ? '<div class="empty"><div class="empty-icon">○</div>Approva le domande<br>dalla colonna sinistra</div>'
+      : approvate.map(d => {
+          const ms = d.timestamp?.toDate ? d.timestamp.toDate().getTime() : '';
+          return `<div class="q-card approvata" data-id="${d.id}" draggable="true">
+            <div class="q-text">${escHtml(d.testo)}</div>
+            <div class="q-meta">
+              <span class="q-time" data-ts="${ms}">${relativeTime(d.timestamp)}</span>
+              <div class="q-actions">
+                <button class="btn-sm btn-done"   onclick="segnaFatta('${d.id}')">▶ In corso</button>
+                <button class="btn-sm btn-back"   onclick="riporta('${d.id}')">↩ Riporta</button>
+                <button class="btn-sm btn-delete" onclick="elimina('${d.id}')">✕</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+    bindDrag();
+
+    // ── Corrente
+    const corrente = fatte[0];
+    document.getElementById('currentQuestion').innerHTML = corrente
+      ? `<span class="highlight-text">"${escHtml(corrente.testo)}"</span>`
+      : '<span class="highlight-empty">Nessuna domanda in corso</span>';
+
+    // ── Fatte
+    document.getElementById('listFatte').innerHTML = fatte.length === 0 ? ''
+      : fatte.map(d => `<div class="q-card fatta" data-id="${d.id}">
+            <div class="q-text">${escHtml(d.testo)}</div>
+            <div class="q-meta">
+              <span class="q-time">Trattata</span>
+              <div class="q-actions">
+                <button class="btn-sm btn-back"   onclick="approva('${d.id}')">↩ Riattiva</button>
+                <button class="btn-sm btn-delete" onclick="elimina('${d.id}')">✕</button>
+              </div>
+            </div>
+          </div>`).join('');
+  }
+
+  // ── DRAG & DROP ───────────────────────────────────────────
+  let dragId = null;
+
+  function bindDrag() {
+    document.querySelectorAll('#listApprovate .q-card').forEach(card => {
+      card.addEventListener('dragstart', e => {
+        dragId = card.dataset.id;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => card.classList.add('dragging'), 0);
+      });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        document.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+      });
+      card.addEventListener('dragover', e => {
+        e.preventDefault();
+        if (card.dataset.id === dragId) return;
+        document.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      });
+      card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+      card.addEventListener('drop', e => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        const fromId = dragId, toId = card.dataset.id;
+        if (!fromId || fromId === toId) return;
+        const fi = approvedOrder.indexOf(fromId), ti = approvedOrder.indexOf(toId);
+        if (fi < 0 || ti < 0) return;
+        approvedOrder.splice(fi, 1);
+        approvedOrder.splice(ti, 0, fromId);
+        render();
+      });
+    });
+  }
+
+  // ── AZIONI ────────────────────────────────────────────────
+  async function safeUpdate(id, data) {
+    try { await updateDoc(doc(db,'domande',id), data); }
+    catch(e) { console.error(e); showToast('Errore — riprova', 'error'); }
+  }
+  async function safeDelete(id) {
+    try { await deleteDoc(doc(db,'domande',id)); }
+    catch(e) { console.error(e); showToast('Errore — riprova', 'error'); }
+  }
+
+  window.approva    = id => withExitAnim(id, () => safeUpdate(id, {stato:'approvata'}));
+  window.segnaFatta = id => withExitAnim(id, () => safeUpdate(id, {stato:'fatta'}));
+  window.riporta    = id => withExitAnim(id, () => safeUpdate(id, {stato:'in_attesa'}));
+  window.elimina    = id => withExitAnim(id, () => safeDelete(id));
+
+  // ── MODIFICA + AI ─────────────────────────────────────────
+  window.apriModifica = function(id) {
+    const d = allDocs[id];
+    if (!d) return;
+    editingId = id;
+    document.getElementById('modalOriginal').textContent  = d.testo;
+    document.getElementById('modalTextarea').value        = d.testo;
+    document.getElementById('editModal').classList.remove('hidden');
+    document.getElementById('modalTextarea').focus();
+  };
+
+  window.chiudiModal = function() {
+    document.getElementById('editModal').classList.add('hidden');
+    editingId = null;
+  };
+
+  window.salvaModifica = async function() {
+    if (!editingId) return;
+    const nuovoTesto = document.getElementById('modalTextarea').value.trim();
+    if (!nuovoTesto) return;
+    await safeUpdate(editingId, { testo: nuovoTesto, stato: 'approvata' });
+    chiudiModal();
+    showToast('✓ Domanda modificata e approvata', 'success');
+  };
+
+  // Chiudi modal cliccando fuori
+  document.getElementById('editModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('editModal')) chiudiModal();
+  });
+
+  // ── ESPORTA SESSIONE ──────────────────────────────────────
+  window.esportaSessione = function() {
+    const docs  = Object.values(allDocs);
+    const fatte = docs.filter(d => d.stato==='fatta')
+                      .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const tutte = docs.filter(d => d.stato!=='fatta')
+                      .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+
+    if (docs.length === 0) { showToast('Nessuna domanda da esportare', 'error'); return; }
+
+    const data = new Date().toLocaleDateString('it-IT');
+    let testo  = `LIVING CHURCH — Domande del ${data}\n`;
+    testo += '═'.repeat(44) + '\n\n';
+
+    if (fatte.length > 0) {
+      testo += `DOMANDE TRATTATE (${fatte.length})\n`;
+      testo += '─'.repeat(30) + '\n';
+      fatte.forEach((d, i) => { testo += `${i+1}. ${d.testo}\n`; });
+      testo += '\n';
+    }
+    if (tutte.length > 0) {
+      testo += `ALTRE DOMANDE (${tutte.length})\n`;
+      testo += '─'.repeat(30) + '\n';
+      tutte.forEach((d, i) => { testo += `${i+1}. [${d.stato}] ${d.testo}\n`; });
+    }
+
+    const blob = new Blob([testo], { type:'text/plain;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `living-church-domande-${data.replace(/\//g,'-')}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✓ File scaricato', 'success');
+  };
+
+  // ── CLEAR ALL ─────────────────────────────────────────────
+  window.clearAll = async () => {
+    if (!confirm('Eliminare tutte le domande della sessione? L\'azione è irreversibile.')) return;
+    try {
+      const snap = await getDocs(collection(db,'domande'));
+      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+    } catch(e) { showToast('Errore durante lo svuotamento', 'error'); }
+  };
+
+  // ── KEYBOARD SHORTCUTS ───────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (!document.getElementById('appContent').classList.contains('visible')) return;
+    const docs      = Object.values(allDocs);
+    const attesa    = docs.filter(d => d.stato==='in_attesa')
+                         .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const approvate = approvedOrder.map(id => allDocs[id]).filter(d => d && d.stato==='approvata');
+    if (e.key==='a'||e.key==='A') {
+      if (attesa.length > 0) { approva(attesa[0].id); showToast('✓ Domanda approvata', 'success'); }
+    }
+    if (e.key==='f'||e.key==='F') {
+      if (approvate.length > 0) { segnaFatta(approvate[0].id); showToast('▶ Segnata come fatta', 'success'); }
+    }
+    if (e.key==='Delete') {
+      if (attesa.length > 0) { elimina(attesa[0].id); showToast('✕ Domanda eliminata', 'error'); }
+    }
+    if (e.key==='Escape') chiudiModal();
+  });
+
+  // ── LISTENER ─────────────────────────────────────────────
+  function startListener() {
+    const connecting = document.getElementById('connectingMsg');
+    connecting.classList.add('visible');
+    unsubscribe = onSnapshot(
+      query(collection(db,'domande'), orderBy('timestamp','asc')),
+      snapshot => {
+        connecting.classList.remove('visible');
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'removed') {
+            delete allDocs[change.doc.id];
+            approvedOrder = approvedOrder.filter(id => id !== change.doc.id);
+          } else {
+            allDocs[change.doc.id] = { id:change.doc.id, ...change.doc.data() };
+          }
+        });
+        render();
+      },
+      err => {
+        console.error(err);
+        connecting.textContent = '⚠️ Errore connessione';
+        connecting.classList.add('visible');
+        showToast('Connessione persa — ricarica la pagina', 'error');
+      }
+    );
+  }
+</script>
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot,
+    doc, getDoc, updateDoc, deleteDoc, getDocs, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyApq1nm6YDTHguHKF1rwAKa7Jxkr1hU7hU",
+    authDomain: "living-church.firebaseapp.com",
+    projectId: "living-church",
+    storageBucket: "living-church.firebasestorage.app",
+    messagingSenderId: "779934743570",
+    appId: "1:779934743570:web:fa7b9ddb63f5182d17eccb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  let allDocs      = {};
+  let approvedOrder = [];
+  let unsubscribe  = null;
+  const SESSION_KEY = 'regia_auth';
+
+  // ── UTILS ─────────────────────────────────────────────────
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function relativeTime(ts) {
+    if (!ts) return '–';
+    const d   = ts.toDate ? ts.toDate() : new Date(ts);
+    const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (sec < 60)   return 'Adesso';
+    if (sec < 3600) return `${Math.floor(sec/60)} min fa`;
+    return d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  // Refresh relative timestamps every 30s
+  setInterval(() => {
+    document.querySelectorAll('.q-time[data-ts]').forEach(el => {
+      const ms = Number(el.dataset.ts);
+      if (!ms) return;
+      const sec = Math.floor((Date.now() - ms) / 1000);
+      if (sec < 60)   el.textContent = 'Adesso';
+      else if (sec < 3600) el.textContent = `${Math.floor(sec/60)} min fa`;
+    });
+  }, 30000);
+
+  // ── TOAST ─────────────────────────────────────────────────
+  function showToast(msg, type = 'error') {
+    const container = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => {
+      t.classList.add('exiting');
+      setTimeout(() => t.remove(), 320);
+    }, 2800);
+  }
+
+  // ── EXIT ANIMATION ─────────────────────────────────────────
+  function withExitAnim(id, action) {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) {
+      el.classList.add('exiting');
+      setTimeout(action, 210);
+    } else {
+      action();
+    }
+  }
+
+  // ── SESSION ───────────────────────────────────────────────
+  function enterApp() {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('appContent').classList.add('visible');
+    startListener();
+  }
+
+  (async function checkSession() {
+    const saved = localStorage.getItem(SESSION_KEY);
+    if (!saved) return;
+    try {
+      const snap = await getDoc(doc(db, 'config', 'regia'));
+      if (snap.exists() && saved === snap.data().password) enterApp();
+      else localStorage.removeItem(SESSION_KEY);
+    } catch(err) { console.error(err); }
+  })();
+
+  // ── LOGIN ─────────────────────────────────────────────────
+  document.getElementById('passwordInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  window.doLogin = async function() {
+    const input = document.getElementById('passwordInput');
+    const btn   = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    const pwd   = input.value;
+    if (!pwd) return;
+    btn.disabled = true; btn.textContent = 'Verifica…'; errEl.textContent = '';
+    try {
+      const snap = await getDoc(doc(db, 'config', 'regia'));
+      if (!snap.exists()) throw new Error('config/regia non trovato');
+      if (pwd === snap.data().password) {
+        localStorage.setItem(SESSION_KEY, pwd);
+        enterApp();
+      } else {
+        input.classList.add('error');
+        errEl.textContent = 'Password non corretta. Riprova.';
+        input.value = ''; input.focus();
+        setTimeout(() => input.classList.remove('error'), 500);
+      }
+    } catch(err) {
+      console.error(err);
+      errEl.textContent = 'Errore di connessione. Controlla la rete.';
+    }
+    btn.disabled = false; btn.textContent = 'Entra';
+  };
+
+  window.doLogout = function() {
+    localStorage.removeItem(SESSION_KEY);
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    allDocs = {}; approvedOrder = [];
+    document.getElementById('appContent').classList.remove('visible');
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('loginError').textContent = '';
+  };
+
+  // ── RENDER ────────────────────────────────────────────────
+  function render() {
+    const docs   = Object.values(allDocs);
+    const attesa = docs.filter(d => d.stato==='in_attesa')
+                       .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+
+    // Maintain custom drag order for approvate
+    const approvedMap = Object.fromEntries(
+      docs.filter(d => d.stato==='approvata').map(d => [d.id, d])
+    );
+    approvedOrder = approvedOrder.filter(id => approvedMap[id]);
+    Object.keys(approvedMap).forEach(id => {
+      if (!approvedOrder.includes(id)) approvedOrder.push(id);
+    });
+    const approvate = approvedOrder.map(id => approvedMap[id]).filter(Boolean);
+
+    const fatte  = docs.filter(d => d.stato==='fatta')
+                       .sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0));
+
+    // Counters — gold alert when in attesa >= 5
+    const cA = document.getElementById('countAttesa');
+    cA.textContent = attesa.length;
+    cA.classList.toggle('alert', attesa.length >= 5);
+    document.getElementById('countApprovate').textContent = approvate.length;
+    document.getElementById('countFatte').textContent     = fatte.length;
+
+    // ── In attesa
+    document.getElementById('listAttesa').innerHTML = attesa.length === 0
+      ? '<div class="empty"><div class="empty-icon">○</div>Nessuna domanda ancora.<br>In attesa…</div>'
+      : attesa.map(d => {
+          const ms = d.timestamp?.toDate ? d.timestamp.toDate().getTime() : '';
+          return `<div class="q-card" data-id="${d.id}">
+            <div class="q-text">${escHtml(d.testo)}</div>
+            <div class="q-meta">
+              <span class="q-time" data-ts="${ms}">${relativeTime(d.timestamp)}</span>
+              <div class="q-actions">
+                <button class="btn-sm btn-approve" onclick="approva('${d.id}')">✓ Approva</button>
+                <button class="btn-sm btn-delete"  onclick="elimina('${d.id}')">✕ Elimina</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+    // ── Approvate (draggable)
+    document.getElementById('listApprovate').innerHTML = approvate.length === 0
+      ? '<div class="empty"><div class="empty-icon">○</div>Approva le domande<br>dalla colonna sinistra</div>'
+      : approvate.map(d => {
+          const ms = d.timestamp?.toDate ? d.timestamp.toDate().getTime() : '';
+          return `<div class="q-card approvata" data-id="${d.id}" draggable="true">
+            <div class="q-text">${escHtml(d.testo)}</div>
+            <div class="q-meta">
+              <span class="q-time" data-ts="${ms}">${relativeTime(d.timestamp)}</span>
+              <div class="q-actions">
+                <button class="btn-sm btn-done"   onclick="segnaFatta('${d.id}')">▶ In corso</button>
+                <button class="btn-sm btn-back"   onclick="riporta('${d.id}')">↩ Riporta</button>
+                <button class="btn-sm btn-delete" onclick="elimina('${d.id}')">✕</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+    bindDrag();
+
+    // ── Corrente (ultima segnata fatta)
+    const corrente = fatte[0];
+    document.getElementById('currentQuestion').innerHTML = corrente
+      ? `<span class="highlight-text">"${escHtml(corrente.testo)}"</span>`
+      : '<span class="highlight-empty">Nessuna domanda in corso</span>';
+
+    // ── Fatte
+    document.getElementById('listFatte').innerHTML = fatte.length === 0 ? ''
+      : fatte.map(d => {
+          return `<div class="q-card fatta" data-id="${d.id}">
+            <div class="q-text">${escHtml(d.testo)}</div>
+            <div class="q-meta">
+              <span class="q-time">Trattata</span>
+              <div class="q-actions">
+                <button class="btn-sm btn-back"   onclick="approva('${d.id}')">↩ Riattiva</button>
+                <button class="btn-sm btn-delete" onclick="elimina('${d.id}')">✕</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+  }
+
+  // ── DRAG & DROP ───────────────────────────────────────────
+  let dragId = null;
+
+  function bindDrag() {
+    document.querySelectorAll('#listApprovate .q-card').forEach(card => {
+      card.addEventListener('dragstart', e => {
+        dragId = card.dataset.id;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => card.classList.add('dragging'), 0);
+      });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        document.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+      });
+      card.addEventListener('dragover', e => {
+        e.preventDefault();
+        if (card.dataset.id === dragId) return;
+        document.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      });
+      card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+      card.addEventListener('drop', e => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        const fromId = dragId;
+        const toId   = card.dataset.id;
+        if (!fromId || fromId === toId) return;
+        const fi = approvedOrder.indexOf(fromId);
+        const ti = approvedOrder.indexOf(toId);
+        if (fi < 0 || ti < 0) return;
+        approvedOrder.splice(fi, 1);
+        approvedOrder.splice(ti, 0, fromId);
+        render();
+      });
+    });
+  }
+
+  // ── AZIONI ────────────────────────────────────────────────
+  async function safeUpdate(id, data) {
+    try { await updateDoc(doc(db,'domande',id), data); }
+    catch(e) { console.error(e); showToast('Errore — riprova', 'error'); }
+  }
+  async function safeDelete(id) {
+    try { await deleteDoc(doc(db,'domande',id)); }
+    catch(e) { console.error(e); showToast('Errore — riprova', 'error'); }
+  }
+
+  window.approva    = id => withExitAnim(id, () => safeUpdate(id, {stato:'approvata'}));
+  window.segnaFatta = id => withExitAnim(id, () => safeUpdate(id, {stato:'fatta'}));
+  window.riporta    = id => withExitAnim(id, () => safeUpdate(id, {stato:'in_attesa'}));
+  window.elimina    = id => withExitAnim(id, () => safeDelete(id));
+
+  window.clearAll = async () => {
+    if (!confirm('Eliminare tutte le domande della sessione? L\'azione è irreversibile.')) return;
+    try {
+      const snap = await getDocs(collection(db,'domande'));
+      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+    } catch(e) { showToast('Errore durante lo svuotamento', 'error'); }
+  };
+
+  // ── KEYBOARD SHORTCUTS ───────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (!document.getElementById('appContent').classList.contains('visible')) return;
+
+    const docs      = Object.values(allDocs);
+    const attesa    = docs.filter(d => d.stato==='in_attesa')
+                         .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const approvate = approvedOrder.map(id => allDocs[id]).filter(d => d && d.stato==='approvata');
+
+    if (e.key === 'a' || e.key === 'A') {
+      if (attesa.length > 0) { approva(attesa[0].id); showToast('✓ Domanda approvata', 'success'); }
+    }
+    if (e.key === 'f' || e.key === 'F') {
+      if (approvate.length > 0) { segnaFatta(approvate[0].id); showToast('▶ Segnata come fatta', 'success'); }
+    }
+    if (e.key === 'Delete') {
+      if (attesa.length > 0) { elimina(attesa[0].id); showToast('✕ Domanda eliminata', 'error'); }
+    }
+  });
+
+  // ── LISTENER ─────────────────────────────────────────────
+  function startListener() {
+    const connecting = document.getElementById('connectingMsg');
+    connecting.classList.add('visible');
+
+    unsubscribe = onSnapshot(
+      query(collection(db,'domande'), orderBy('timestamp','asc')),
+      snapshot => {
+        connecting.classList.remove('visible');
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'removed') {
+            delete allDocs[change.doc.id];
+            approvedOrder = approvedOrder.filter(id => id !== change.doc.id);
+          } else {
+            allDocs[change.doc.id] = { id:change.doc.id, ...change.doc.data() };
+          }
+        });
+        render();
+      },
+      err => {
+        console.error(err);
+        connecting.textContent = '⚠️ Errore connessione';
+        connecting.classList.add('visible');
+        showToast('Connessione persa — ricarica la pagina', 'error');
+      }
+    );
+  }
+</script>
+</body>
+</html>
