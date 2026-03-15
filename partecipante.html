@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Living Church — Fai una domanda</title>
+<title>Living Q&A — Fai una domanda</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap');
 
@@ -19,6 +19,7 @@
     --white-30:    rgba(255,255,255,0.3);
     --white-15:    rgba(255,255,255,0.15);
     --white-08:    rgba(255,255,255,0.08);
+    --white-06:    rgba(255,255,255,0.06);
     --gold:        #c8a96e;
     --gold-dim:    rgba(200,169,110,0.2);
     --success:     #6abf8a;
@@ -305,6 +306,7 @@
       <button id="sendBtn" onclick="sendQuestion()" disabled>
         Invia domanda
       </button>
+      <div id="sendError" style="display:none;margin-top:12px;text-align:center;font-size:13px;color:var(--error);line-height:1.5"></div>
     </div>
 
     <div class="success-screen" id="successScreen">
@@ -318,12 +320,17 @@
       <button class="another-btn" onclick="resetForm()">Invia un'altra domanda</button>
     </div>
   </div>
+
+  <div style="text-align:center;margin-top:28px;padding-bottom:16px">
+    <div style="font-family:'Lora',serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.35);margin-bottom:3px">Living Q&A</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.2)">© 2026 Living Church — Tutti i diritti riservati.</div>
+  </div>
 </div>
 
 <!-- Firebase SDK -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyApq1nm6YDTHguHKF1rwAKa7Jxkr1hU7hU",
@@ -357,9 +364,22 @@
     document.getElementById('successScreen').classList.remove('visible');
   };
 
+  const THROTTLE_MS = 20000;
+  let lastSent = 0;
+  let countdownTimer = null;
+
   window.sendQuestion = async function() {
     const text = document.getElementById('question').value.trim();
     if (text.length < 5) return;
+
+    // Throttle check
+    const now = Date.now();
+    const elapsed = now - lastSent;
+    if (lastSent > 0 && elapsed < THROTTLE_MS) {
+      const remaining = Math.ceil((THROTTLE_MS - elapsed) / 1000);
+      showThrottle(remaining);
+      return;
+    }
 
     const btn = document.getElementById('sendBtn');
     btn.disabled = true;
@@ -371,15 +391,39 @@
         timestamp: serverTimestamp(),
         stato:     'in_attesa'
       });
+      lastSent = Date.now();
       document.getElementById('formSection').classList.add('hidden');
       document.getElementById('successScreen').classList.add('visible');
     } catch(err) {
       console.error(err);
       btn.disabled  = false;
       btn.textContent = 'Invia domanda';
-      alert('Errore nell\'invio. Controlla la connessione e riprova.');
+      const errEl = document.getElementById('sendError');
+      errEl.textContent = 'Errore nell\'invio. Controlla la connessione e riprova.';
+      errEl.style.display = 'block';
+      setTimeout(() => { errEl.style.display = 'none'; }, 4000);
     }
   };
+
+  function showThrottle(seconds) {
+    const errEl = document.getElementById('sendError');
+    if (countdownTimer) clearInterval(countdownTimer);
+    let remaining = seconds;
+    errEl.style.color = 'var(--gold)';
+    errEl.textContent = `Puoi inviare un'altra domanda tra ${remaining} secondi.`;
+    errEl.style.display = 'block';
+    countdownTimer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        errEl.style.display = 'none';
+        errEl.style.color = 'var(--error)';
+      } else {
+        errEl.textContent = `Puoi inviare un'altra domanda tra ${remaining} secondi.`;
+      }
+    }, 1000);
+  }
 </script>
 </body>
 </html>
