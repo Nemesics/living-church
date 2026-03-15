@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Living Church — Regia</title>
+<title>Living Q&A — Regia</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Source+Sans+3:wght@300;400;600;700&display=swap');
 
@@ -26,7 +26,7 @@
     --yellow:      #d4b86a;
     --yellow-dim:  rgba(212,184,106,0.15);
     --white-10:    rgba(255,255,255,0.08);
-    --topbar:      #1e4d59;
+    --topbar:      #1a3f4a;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -156,11 +156,11 @@
     0%,100%{ box-shadow:0 0 0 0 rgba(106,191,138,0.5); }
     50%    { box-shadow:0 0 0 6px rgba(106,191,138,0); }
   }
-  .topbar-logo { display:flex; align-items:center; gap:10px; }
   .topbar h1 {
     font-family:'Lora',serif; font-size:17px; font-weight:600;
     color:var(--text); letter-spacing:-0.01em;
   }
+  .btn-edit { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.25) !important; }
   .topbar-divider { width:1px; height:20px; background:var(--border); flex-shrink:0; }
   .kbd {
     display:inline-flex; align-items:center; justify-content:center;
@@ -196,7 +196,7 @@
     pointer-events:none; opacity:0;
     transition:opacity 0.15s;
     font-family:'Source Sans 3',sans-serif;
-    z-index:200;
+    z-index:99;
   }
   .icon-btn:hover::after { opacity:1; }
 
@@ -221,7 +221,7 @@
   /* ── LAYOUT ─────────────────────────────────────────────── */
   .layout {
     display:grid; grid-template-columns:1fr 1fr 1fr;
-    gap:2px; background:var(--bg);
+    gap:2px; background:#1a3f4a;
     height:calc(100vh - 56px); margin-top:56px;
   }
 
@@ -276,7 +276,7 @@
   }
 
   .col-header {
-    padding:16px 18px 14px; background:#0f2730;
+    padding:16px 18px 14px; background:#112833;
     border-bottom:1px solid var(--border);
     flex-shrink:0;
     display:flex; align-items:center; justify-content:space-between;
@@ -303,7 +303,7 @@
 
   /* ── CARDS ─────────────────────────────────────────────── */
   .q-card {
-    background:var(--surface);
+    background:rgba(255,255,255,0.05);
     border:1px solid var(--border);
     border-radius:12px; padding:14px 16px;
     margin-bottom:8px;
@@ -457,6 +457,50 @@
   }
   .btn-modal-save:hover { background:#d9bc84; }
 
+  /* ── EXPORT MODAL ───────────────────────────────────────── */
+  .export-preview {
+    background:rgba(0,0,0,0.2); border:1px solid var(--border);
+    border-radius:10px; padding:14px 16px; margin-bottom:20px;
+  }
+  .export-preview-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:5px 0; font-size:13px;
+    border-bottom:1px solid var(--border);
+  }
+  .export-preview-row:last-child { border-bottom:none; }
+  .export-preview-label { color:var(--muted); }
+  .export-preview-count {
+    font-weight:700; font-size:14px; color:var(--text);
+  }
+  .export-preview-count.zero { color:var(--muted); font-weight:400; }
+
+  .format-selector {
+    display:flex; gap:10px; margin-bottom:20px;
+  }
+  .format-option {
+    flex:1; position:relative;
+  }
+  .format-option input[type="radio"] {
+    position:absolute; opacity:0; width:0; height:0;
+  }
+  .format-label {
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:14px 10px; border-radius:10px; cursor:pointer;
+    border:1.5px solid var(--border);
+    background:rgba(0,0,0,0.15);
+    transition:border-color 0.2s, background 0.2s;
+    text-align:center;
+  }
+  .format-option input:checked + .format-label {
+    border-color:var(--gold);
+    background:var(--gold-dim);
+  }
+  .format-icon { font-size:22px; }
+  .format-name {
+    font-size:13px; font-weight:700; color:var(--text);
+  }
+  .format-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+
   /* ── CONFIRM MODAL ──────────────────────────────────────── */
   .confirm-card {
     background:var(--surface);
@@ -550,7 +594,7 @@
 
   .drawer-header {
     padding:18px 20px 16px;
-    background:#0f2730;
+    background:#112833;
     border-bottom:1px solid var(--border);
     display:flex; align-items:center; justify-content:space-between;
     flex-shrink:0;
@@ -587,8 +631,8 @@
         <path d="M 77.44 173.87 C59.84,162.49 55.67,159.44 51.78,155.06 C45.22,147.70 40.53,139.78 37.45,130.85 L 34.56 122.50 L 34.20 92.25 L 33.85 62.00 L 44.49 62.00 C54.16,62.00 55.09,62.16 54.62,63.75 C54.34,64.71 53.81,67.19 53.44,69.25 C52.81,72.83 52.60,73.00 48.89,73.00 L 45.00 73.00 L 45.00 94.95 C45.00,119.66 45.69,124.43 50.74,134.81 C55.42,144.43 62.83,151.85 76.18,160.32 L 86.87 167.09 L 98.35 159.54 C111.37,150.98 117.13,145.13 122.22,135.32 C127.82,124.53 128.50,120.20 128.50,95.50 L 128.50 73.50 L 124.44 73.20 C120.43,72.91 120.36,72.83 119.36,67.95 C118.80,65.22 118.57,62.77 118.84,62.49 C119.11,62.22 123.76,62.00 129.17,62.00 L 139.00 62.00 L 139.00 90.34 C139.00,122.45 138.14,128.24 131.45,140.97 C125.66,151.98 118.34,159.18 102.27,169.69 C94.44,174.81 87.44,179.00 86.71,179.00 C85.99,179.00 81.81,176.69 77.44,173.87 ZM 70.74 121.50 C62.08,104.17 55.00,89.77 55.00,89.50 C55.00,89.22 69.40,89.00 87.00,89.00 L 119.01 89.00 L 103.00 121.00 C94.20,138.60 86.88,153.00 86.74,153.00 C86.60,153.00 79.40,138.82 70.74,121.50 ZM 93.99 115.01 C97.85,107.32 101.00,100.57 101.00,100.01 C101.00,99.38 95.63,99.00 86.50,99.00 C78.53,99.00 72.00,99.22 72.00,99.49 C72.00,100.15 86.40,129.00 86.73,129.00 C86.87,129.00 90.14,122.71 93.99,115.01 ZM 59.18 74.75 C59.66,65.67 62.00,59.36 68.50,49.57 C72.95,42.86 84.74,30.00 86.43,30.00 C90.05,30.00 107.32,51.64 111.29,61.16 C113.69,66.90 115.18,75.53 114.45,79.44 C113.78,82.98 113.75,83.00 108.54,83.00 L 103.29 83.00 L 103.76 78.12 C104.02,75.43 103.68,71.49 103.01,69.37 C101.37,64.14 94.97,53.48 90.26,48.10 L 86.40 43.70 L 81.67 49.60 C79.07,52.84 75.27,58.85 73.22,62.95 C70.06,69.28 69.51,71.34 69.57,76.70 L 69.65 83.00 L 64.20 83.00 L 58.75 83.00 L 59.18 74.75 Z" fill="white"/>
       </svg>
     </div>
-    <h2>Accesso Regia</h2>
-    <p>Inserisci la password per accedere al pannello di moderazione.</p>
+    <h2>Living Q&A</h2>
+    <p>Accesso Regia — inserisci la password per accedere al pannello di moderazione.</p>
     <label class="login-label" for="passwordInput">Password</label>
     <div class="password-wrap">
       <input class="login-input" type="password" id="passwordInput" placeholder="••••••••••" autocomplete="current-password"/>
@@ -609,9 +653,7 @@
   <div class="topbar">
     <div class="topbar-left">
       <div class="live-dot"></div>
-      <div class="topbar-logo">
-        <h1>Regia</h1>
-      </div>
+      <h1>Regia</h1>
       <div class="topbar-divider"></div>
       <button class="icon-btn" data-tip="Scorciatoie da tastiera" onclick="toggleShortcuts()" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);font-size:13px;font-weight:700;font-family:'Source Sans 3',sans-serif;">?</button>
     </div>
@@ -643,7 +685,7 @@
   <div class="layout">
 
     <!-- COL 1: In attesa -->
-    <div class="column tab-active" id="col0">
+    <div class="column tab-active" id="col0" style="background:#1a3340">
       <div class="col-header">
         <div>
           <div class="col-title">In attesa</div>
@@ -657,7 +699,7 @@
     </div>
 
     <!-- COL 2: Approvate -->
-    <div class="column" id="col1">
+    <div class="column" id="col1" style="background:#172d3d">
       <div class="col-header">
         <div>
           <div class="col-title">Approvate</div>
@@ -671,7 +713,7 @@
     </div>
 
     <!-- COL 3: In corso / Fatte -->
-    <div class="column" id="col2">
+    <div class="column" id="col2" style="background:#152535">
       <div class="col-header">
         <div>
           <div class="col-title">In corso / Fatte</div>
@@ -688,6 +730,55 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- EXPORT MODAL -->
+  <div class="modal-overlay hidden" id="exportModal" onclick="if(event.target===this)chiudiExport()">
+    <div class="modal-card" style="max-width:440px">
+      <div class="modal-title">Esporta sessione</div>
+      <div class="modal-subtitle">Scegli il formato e scarica il riepilogo della riunione.</div>
+
+      <span class="modal-label">Anteprima contenuto</span>
+      <div class="export-preview">
+        <div class="export-preview-row">
+          <span class="export-preview-label">Domande trattate</span>
+          <span class="export-preview-count" id="expCountFatte">0</span>
+        </div>
+        <div class="export-preview-row">
+          <span class="export-preview-label">Domande approvate (non lette)</span>
+          <span class="export-preview-count" id="expCountApprovate">0</span>
+        </div>
+        <div class="export-preview-row">
+          <span class="export-preview-label">Domande in attesa</span>
+          <span class="export-preview-count" id="expCountAttesa">0</span>
+        </div>
+      </div>
+
+      <span class="modal-label">Formato</span>
+      <div class="format-selector">
+        <div class="format-option">
+          <input type="radio" name="exportFormat" id="fmtPdf" value="pdf" checked>
+          <label class="format-label" for="fmtPdf">
+            <span class="format-icon">📄</span>
+            <span class="format-name">PDF</span>
+            <span class="format-desc">Documento formattato, ideale per archiviare</span>
+          </label>
+        </div>
+        <div class="format-option">
+          <input type="radio" name="exportFormat" id="fmtTxt" value="txt">
+          <label class="format-label" for="fmtTxt">
+            <span class="format-icon">📝</span>
+            <span class="format-name">TXT</span>
+            <span class="format-desc">Testo semplice, apri con qualsiasi app</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="chiudiExport()">Annulla</button>
+        <button class="btn-modal-save" onclick="eseguiExport()">↓ Scarica</button>
+      </div>
+    </div>
   </div>
 
   <!-- CONFIRM MODAL -->
@@ -778,6 +869,16 @@
           <td style="padding:9px 0;font-size:13px;color:var(--text)">Chiudi finestre aperte</td>
         </tr>
       </table>
+
+      <!-- Footer copyright -->
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-family:'Lora',serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Living Q&A — Versione 1.0</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">
+          Strumento interno per la gestione delle domande durante gli incontri comunitari. È vietata la riproduzione, distribuzione o utilizzo non autorizzato.
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;opacity:0.7">© 2026 Living Church — Tutti i diritti riservati.</div>
+      </div>
+
       <div class="modal-actions">
         <button class="btn-modal-save" onclick="toggleShortcuts()">Chiudi</button>
       </div>
@@ -788,15 +889,14 @@
   <div class="modal-overlay hidden" id="editModal">
     <div class="modal-card">
       <div class="modal-title">Modifica domanda</div>
-      <div class="modal-subtitle">Puoi riformulare il testo manualmente o chiedere a AI di suggerire una versione migliorata.</div>
+      <div class="modal-subtitle">Modifica il testo della domanda. Lo stato non cambia.</div>
       <span class="modal-label">Testo originale</span>
       <div class="modal-original" id="modalOriginal"></div>
       <span class="modal-label">Testo modificato</span>
       <textarea class="modal-textarea" id="modalTextarea" rows="3" placeholder="Scrivi o modifica il testo…"></textarea>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="chiudiModal()">Annulla</button>
-        <button class="btn-modal-cancel" onclick="salvaModifica(false)">Salva in attesa</button>
-        <button class="btn-modal-save"   onclick="salvaModifica(true)">Salva e approva</button>
+        <button class="btn-modal-save"   onclick="salvaModifica()">Salva modifiche</button>
       </div>
     </div>
   </div>
@@ -804,11 +904,11 @@
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
   import {
     getFirestore, collection, onSnapshot,
     doc, getDoc, updateDoc, deleteDoc, getDocs, query, orderBy
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyApq1nm6YDTHguHKF1rwAKa7Jxkr1hU7hU",
@@ -850,7 +950,7 @@
   }
 
   // Refresh timestamps every 30s
-  setInterval(() => {
+  let tsInterval = setInterval(() => {
     document.querySelectorAll('.q-time[data-ts]').forEach(el => {
       const ms = Number(el.dataset.ts);
       if (!ms) return;
@@ -867,7 +967,7 @@
 
   // ── TAB TITLE COUNTER ────────────────────────────────────
   function updateTabTitle(n) {
-    document.title = n > 0 ? `(${n}) Regia — Living Church` : 'Living Church — Regia';
+    document.title = n > 0 ? `(${n}) Living Q&A — Regia` : 'Living Q&A — Regia';
   }
 
   // ── TOAST ─────────────────────────────────────────────────
@@ -900,11 +1000,20 @@
   (async function checkSession() {
     const saved = localStorage.getItem(SESSION_KEY);
     if (!saved) return;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Connessione…';
     try {
       const snap = await getDoc(doc(db, 'config', 'regia'));
-      if (snap.exists() && saved === snap.data().password) enterApp();
-      else localStorage.removeItem(SESSION_KEY);
-    } catch(err) { console.error(err); }
+      if (snap.exists() && saved === snap.data().password) {
+        enterApp();
+      } else {
+        localStorage.removeItem(SESSION_KEY);
+        btn.disabled = false; btn.textContent = 'Entra';
+      }
+    } catch(err) {
+      console.error(err);
+      btn.disabled = false; btn.textContent = 'Entra';
+    }
   })();
 
   // ── LOGIN ─────────────────────────────────────────────────
@@ -953,6 +1062,7 @@
   window.doLogout = function() {
     localStorage.removeItem(SESSION_KEY);
     if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    if (tsInterval)  { clearInterval(tsInterval); tsInterval = null; }
     allDocs = {}; approvedOrder = [];
     updateTabTitle(0);
     document.getElementById('appContent').classList.remove('visible');
@@ -998,7 +1108,7 @@
     tc.classList.toggle('visible', cestino.length > 0);
 
     // Tab badges (mobile)
-    updateTabBadges(attesa.length, approvate.length, incorso.length);
+    updateTabBadges(attesa.length, approvate.length, incorso.length + fatte.length);
 
     // ── Cestino drawer
     document.getElementById('listCestino').innerHTML = cestino.length === 0
@@ -1029,7 +1139,7 @@
               <span class="q-time" data-ts="${ms}">${relativeTime(d.timestamp)}</span>
               <div class="q-actions">
                 <button class="btn-sm btn-approve" onclick="approva('${d.id}')">✓ Approva</button>
-                <button class="btn-sm btn-ai"      onclick="apriModifica('${d.id}')">✎ Modifica</button>
+                <button class="btn-sm btn-edit"     onclick="apriModifica('${d.id}')">✎ Modifica</button>
                 <button class="btn-sm btn-delete"  onclick="elimina('${d.id}')">✕ Elimina</button>
               </div>
             </div>
@@ -1047,6 +1157,7 @@
               <span class="q-time" data-ts="${ms}">${relativeTime(d.timestamp)}</span>
               <div class="q-actions">
                 <button class="btn-sm btn-done"   onclick="segnaFatta('${d.id}')">▶ In corso</button>
+                <button class="btn-sm btn-edit"   onclick="apriModifica('${d.id}')">✎ Modifica</button>
                 <button class="btn-sm btn-back"   onclick="riporta('${d.id}')">↩ Riporta</button>
                 <button class="btn-sm btn-delete" onclick="elimina('${d.id}')">✕</button>
               </div>
@@ -1093,26 +1204,30 @@
 
   function bindDrag() {
     document.querySelectorAll('#listApprovate .q-card').forEach(card => {
-      card.addEventListener('dragstart', e => {
-        dragId = card.dataset.id;
+      // Clone to remove all existing listeners
+      const fresh = card.cloneNode(true);
+      card.parentNode.replaceChild(fresh, card);
+
+      fresh.addEventListener('dragstart', e => {
+        dragId = fresh.dataset.id;
         e.dataTransfer.effectAllowed = 'move';
-        setTimeout(() => card.classList.add('dragging'), 0);
+        setTimeout(() => fresh.classList.add('dragging'), 0);
       });
-      card.addEventListener('dragend', () => {
-        card.classList.remove('dragging');
+      fresh.addEventListener('dragend', () => {
+        fresh.classList.remove('dragging');
         document.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
       });
-      card.addEventListener('dragover', e => {
+      fresh.addEventListener('dragover', e => {
         e.preventDefault();
-        if (card.dataset.id === dragId) return;
+        if (fresh.dataset.id === dragId) return;
         document.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
-        card.classList.add('drag-over');
+        fresh.classList.add('drag-over');
       });
-      card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-      card.addEventListener('drop', e => {
+      fresh.addEventListener('dragleave', () => fresh.classList.remove('drag-over'));
+      fresh.addEventListener('drop', e => {
         e.preventDefault();
-        card.classList.remove('drag-over');
-        const fromId = dragId, toId = card.dataset.id;
+        fresh.classList.remove('drag-over');
+        const fromId = dragId, toId = fresh.dataset.id;
         if (!fromId || fromId === toId) return;
         const fi = approvedOrder.indexOf(fromId), ti = approvedOrder.indexOf(toId);
         if (fi < 0 || ti < 0) return;
@@ -1201,14 +1316,13 @@
     editingId = null;
   };
 
-  window.salvaModifica = async function(approva = true) {
+  window.salvaModifica = async function() {
     if (!editingId) return;
     const nuovoTesto = document.getElementById('modalTextarea').value.trim();
     if (!nuovoTesto) return;
-    const nuovoStato = approva ? 'approvata' : 'in_attesa';
-    await safeUpdate(editingId, { testo: nuovoTesto, stato: nuovoStato });
+    await safeUpdate(editingId, { testo: nuovoTesto });
     chiudiModal();
-    showToast(approva ? '✓ Modificata e approvata' : '✓ Modificata — in attesa', 'success');
+    showToast('✓ Testo modificato', 'success');
   };
 
   // Chiudi modal cliccando fuori
@@ -1218,43 +1332,168 @@
 
   // ── ESPORTA SESSIONE ──────────────────────────────────────
   window.esportaSessione = function() {
-    const docs    = Object.values(allDocs);
-    const fatte   = docs.filter(d => d.stato==='fatta' || d.stato==='in_corso')
-                        .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
-    const attesa  = docs.filter(d => d.stato==='in_attesa')
-                        .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
-    const approv  = docs.filter(d => d.stato==='approvata')
-                        .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const docs     = Object.values(allDocs);
+    const fatte    = docs.filter(d => d.stato==='fatta' || d.stato==='in_corso')
+                         .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const approv   = docs.filter(d => d.stato==='approvata')
+                         .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const attesa   = docs.filter(d => d.stato==='in_attesa')
+                         .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
 
-    const attive  = [...attesa, ...approv];
-    const esporta = [...fatte, ...attive];
-    if (esporta.length === 0) { showToast('Nessuna domanda da esportare', 'error'); return; }
+    if (fatte.length + approv.length + attesa.length === 0) {
+      showToast('Nessuna domanda da esportare', 'error'); return;
+    }
 
+    // Aggiorna anteprima
+    const setCount = (id, n) => {
+      const el = document.getElementById(id);
+      el.textContent = n;
+      el.classList.toggle('zero', n === 0);
+    };
+    setCount('expCountFatte',    fatte.length);
+    setCount('expCountApprovate', approv.length);
+    setCount('expCountAttesa',   attesa.length);
+
+    // Resetta formato su PDF
+    document.getElementById('fmtPdf').checked = true;
+
+    document.getElementById('exportModal').classList.remove('hidden');
+  };
+
+  window.chiudiExport = function() {
+    document.getElementById('exportModal').classList.add('hidden');
+  };
+
+  window.eseguiExport = function() {
+    const docs   = Object.values(allDocs);
+    const fatte  = docs.filter(d => d.stato==='fatta' || d.stato==='in_corso')
+                       .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const approv = docs.filter(d => d.stato==='approvata')
+                       .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const attesa = docs.filter(d => d.stato==='in_attesa')
+                       .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+
+    const fmt  = document.querySelector('input[name="exportFormat"]:checked').value;
     const data = new Date().toLocaleDateString('it-IT');
-    let testo  = `LIVING CHURCH — Domande del ${data}\n`;
-    testo += '═'.repeat(44) + '\n\n';
 
-    if (fatte.length > 0) {
-      testo += `DOMANDE TRATTATE (${fatte.length})\n`;
-      testo += '─'.repeat(30) + '\n';
-      fatte.forEach((d, i) => { testo += `${i+1}. ${d.testo}\n`; });
-      testo += '\n';
-    }
-    if (attive.length > 0) {
-      testo += `DOMANDE NON TRATTATE (${attive.length})\n`;
-      testo += '─'.repeat(30) + '\n';
-      attive.forEach((d, i) => { testo += `${i+1}. ${d.testo}\n`; });
-      testo += '\n';
-    }
+    chiudiExport();
 
-    const blob = new Blob([testo], { type:'text/plain;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `living-church-domande-${data.replace(/\//g,'-')}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('✓ File scaricato', 'success');
+    if (fmt === 'txt') {
+      let testo = `Living Q&A — Riepilogo riunione del ${data}\n`;
+      testo += '═'.repeat(46) + '\n\n';
+      if (fatte.length > 0) {
+        testo += `DOMANDE TRATTATE (${fatte.length})\n${'─'.repeat(30)}\n`;
+        fatte.forEach((d,i) => { testo += `${i+1}. ${d.testo}\n`; });
+        testo += '\n';
+      }
+      if (approv.length > 0) {
+        testo += `DOMANDE APPROVATE NON LETTE (${approv.length})\n${'─'.repeat(30)}\n`;
+        approv.forEach((d,i) => { testo += `${i+1}. ${d.testo}\n`; });
+        testo += '\n';
+      }
+      if (attesa.length > 0) {
+        testo += `DOMANDE IN ATTESA (${attesa.length})\n${'─'.repeat(30)}\n`;
+        attesa.forEach((d,i) => { testo += `${i+1}. ${d.testo}\n`; });
+      }
+      testo += `\n${'─'.repeat(46)}\nLiving Q&A © 2026 Living Church\n`;
+      const blob = new Blob([testo], { type:'text/plain;charset=utf-8' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = `living-qa-${data.replace(/\//g,'-')}.txt`;
+      a.click(); URL.revokeObjectURL(url);
+
+    } else {
+      // PDF automatico via jsPDF + html2canvas
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;font-family:Georgia,serif;';
+      container.innerHTML = `
+        <div style="padding:48px 56px;color:#1a1a1a;font-family:'Georgia',serif;width:794px;box-sizing:border-box">
+          <div style="text-align:center;border-bottom:2px solid #173943;padding-bottom:24px;margin-bottom:28px">
+            <div style="font-size:28px;font-weight:700;color:#173943;margin-bottom:4px;letter-spacing:-0.01em">Living Q&A</div>
+            <div style="font-size:13px;color:#666;font-family:Arial,sans-serif">Riepilogo riunione — ${data}</div>
+          </div>
+          <div style="display:flex;gap:0;margin-bottom:28px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+            <div style="flex:1;text-align:center;padding:16px;border-right:1px solid #e0e0e0">
+              <div style="font-size:32px;font-weight:700;color:#173943">${fatte.length}</div>
+              <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Trattate</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px;border-right:1px solid #e0e0e0">
+              <div style="font-size:32px;font-weight:700;color:#2a6272">${approv.length}</div>
+              <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Non lette</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px">
+              <div style="font-size:32px;font-weight:700;color:#7a9a9f">${attesa.length}</div>
+              <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">In attesa</div>
+            </div>
+          </div>
+          ${[
+            { titolo:'Domande trattate', colore:'#173943', lista: fatte },
+            { titolo:'Domande approvate non lette', colore:'#2a6272', lista: approv },
+            { titolo:'Domande in attesa', colore:'#7a9a9f', lista: attesa }
+          ].map(s => `
+            <div style="margin-bottom:28px">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+                color:#fff;background:${s.colore};padding:6px 14px;border-radius:4px;
+                display:inline-block;margin-bottom:12px;font-family:Arial,sans-serif">${s.titolo} (${s.lista.length})</div>
+              ${s.lista.length === 0
+                ? '<div style="font-size:13px;color:#aaa;font-style:italic;padding:4px 0">Nessuna</div>'
+                : s.lista.map((d,i) => {
+                    const ts = d.timestamp?.toDate ? d.timestamp.toDate() : null;
+                    const orario = ts ? ts.toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'}) : '';
+                    return `
+                  <div style="padding:9px 0;border-bottom:1px solid #f0f0f0;display:flex;gap:12px;align-items:flex-start">
+                    <span style="font-size:11px;color:#999;font-weight:700;min-width:22px;padding-top:2px;font-family:Arial,sans-serif">${i+1}.</span>
+                    <div style="flex:1">
+                      <div style="font-size:14px;line-height:1.65;color:#1a1a1a">${d.testo.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+                      ${orario ? `<div style="font-size:10px;color:#bbb;margin-top:3px;font-family:Arial,sans-serif">${orario}</div>` : ''}
+                    </div>
+                  </div>`;
+                  }).join('')}
+            </div>`).join('')}
+          <div style="margin-top:32px;padding-top:14px;border-top:1px solid #ddd;
+            text-align:center;font-size:10px;color:#aaa;font-family:Arial,sans-serif">
+            Living Q&A &mdash; © 2026 Living Church &mdash; Tutti i diritti riservati.
+          </div>
+        </div>`;
+      document.body.appendChild(container);
+
+      showToast('Generazione PDF in corso…', 'success');
+
+      // Carica html2canvas e jsPDF dinamicamente
+      const loadScript = src => new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = src; s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+
+      Promise.all([
+        typeof html2canvas !== 'undefined' ? Promise.resolve() : loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+        typeof window.jspdf !== 'undefined' ? Promise.resolve() : loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+      ]).then(async () => {
+        const canvas = await html2canvas(container, {
+          scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794
+        });
+        document.body.removeChild(container);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+        const imgW = 210;
+        const imgH = (canvas.height * imgW) / canvas.width;
+        const pageH = 297;
+        let posY = 0;
+        while (posY < imgH) {
+          if (posY > 0) pdf.addPage();
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, -posY, imgW, imgH);
+          posY += pageH;
+        }
+        pdf.save(`living-qa-${data.replace(/\//g,'-')}.pdf`);
+        showToast('✓ PDF scaricato', 'success');
+      }).catch(err => {
+        console.error(err);
+        document.body.removeChild(container);
+        showToast('Errore nella generazione del PDF', 'error');
+      });
+      return; // non mostrare il toast finale
+    }
   };
 
   // ── CONFIRM MODAL ─────────────────────────────────────────
@@ -1298,17 +1537,23 @@
       if (attesa.length > 0) { approva(attesa[0].id); showToast('✓ Domanda approvata', 'success'); }
     }
     if (e.key==='f'||e.key==='F') {
-      const docs2   = Object.values(allDocs);
-      const incorso2 = docs2.filter(d => d.stato==='in_corso');
+      const incorso2 = Object.values(allDocs).filter(d => d.stato==='in_corso');
       if (incorso2.length > 0) { segnaDavveroFatta(incorso2[0].id); showToast('✓ Segnata come fatta', 'success'); }
       else if (approvate.length > 0) { segnaFatta(approvate[0].id); showToast('▶ In corso', 'success'); }
     }
     if (e.key==='Delete') {
-      if (attesa.length > 0) { elimina(attesa[0].id); showToast('✕ Domanda eliminata', 'error'); }
+      if (attesa.length > 0) {
+        showConfirm(
+          'Elimina domanda',
+          `"${attesa[0].testo.substring(0,60)}${attesa[0].testo.length > 60 ? '…' : ''}"`,
+          () => { elimina(attesa[0].id); showToast('✕ Domanda eliminata', 'error'); }
+        );
+      }
     }
     if (e.key==='Escape') {
       chiudiModal();
       chiudiConfirm();
+      chiudiExport();
       if (!document.getElementById('shortcutsModal').classList.contains('hidden')) toggleShortcuts();
     }
   });
