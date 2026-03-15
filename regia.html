@@ -215,7 +215,6 @@
   @media(max-width:600px) {
     .topbar { padding:0 12px; }
     .topbar h1 { font-size:15px; }
-    .shortcut-hint { display:none; }
     .topbar-divider { display:none; }
   }
 
@@ -416,6 +415,40 @@
     transition:background 0.2s;
   }
   .btn-modal-save:hover { background:#d9bc84; }
+
+  /* ── CONFIRM MODAL ──────────────────────────────────────── */
+  .confirm-card {
+    background:var(--surface);
+    border:1px solid var(--border-mid);
+    border-radius:16px; padding:28px;
+    width:100%; max-width:380px;
+    box-shadow:0 24px 80px rgba(0,0,0,0.5);
+    animation:fadeUp 0.25s ease both;
+    text-align:center;
+  }
+  .confirm-icon { font-size:32px; margin-bottom:12px; }
+  .confirm-title {
+    font-family:'Lora',serif; font-size:18px; font-weight:600;
+    color:var(--text); margin-bottom:8px;
+  }
+  .confirm-text { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:24px; }
+  .confirm-actions { display:flex; gap:8px; justify-content:center; }
+  .btn-confirm-cancel {
+    padding:9px 20px; background:transparent; color:var(--muted);
+    border:1px solid var(--border); border-radius:8px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    font-family:'Source Sans 3',sans-serif;
+    transition:color 0.2s, border-color 0.2s;
+  }
+  .btn-confirm-cancel:hover { color:var(--text); border-color:var(--border-mid); }
+  .btn-confirm-ok {
+    padding:9px 20px; background:var(--red); color:#fff;
+    border:none; border-radius:8px;
+    font-size:13px; font-weight:700; cursor:pointer;
+    font-family:'Source Sans 3',sans-serif;
+    transition:background 0.2s;
+  }
+  .btn-confirm-ok:hover { background:#d06060; }
 
   /* ── EMPTY ──────────────────────────────────────────────── */
   .empty {
@@ -637,7 +670,7 @@
       <div class="col-header">
         <div>
           <div class="col-title">In corso / Fatte</div>
-          <div class="col-subtitle">Domanda attualmente letta</div>
+          <div class="col-subtitle">Prima approvata in evidenza</div>
         </div>
         <span class="col-count" id="countFatte">0</span>
       </div>
@@ -650,6 +683,19 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay hidden" id="confirmModal">
+    <div class="confirm-card">
+      <div class="confirm-icon">⚠️</div>
+      <div class="confirm-title" id="confirmTitle">Conferma</div>
+      <div class="confirm-text" id="confirmText"></div>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" onclick="chiudiConfirm()">Annulla</button>
+        <button class="btn-confirm-ok" id="confirmOkBtn">Conferma</button>
+      </div>
+    </div>
   </div>
 
   <div class="toast-container" id="toastContainer"></div>
@@ -725,7 +771,8 @@
       <textarea class="modal-textarea" id="modalTextarea" rows="3" placeholder="Scrivi o modifica il testo…"></textarea>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="chiudiModal()">Annulla</button>
-        <button class="btn-modal-save" onclick="salvaModifica()">Salva e approva</button>
+        <button class="btn-modal-cancel" onclick="salvaModifica(false)">Salva in attesa</button>
+        <button class="btn-modal-save"   onclick="salvaModifica(true)">Salva e approva</button>
       </div>
     </div>
   </div>
@@ -933,7 +980,7 @@
             <div class="q-meta">
               <span class="q-time" data-ts="${ms}">${relativeTime(d.timestamp)}</span>
               <div class="q-actions">
-                <button class="btn-sm btn-approve" onclick="ripristina('${d.id}')">↩ Ripristina</button>
+                <button class="btn-sm btn-approve" onclick="riporta('${d.id}')">↩ Ripristina</button>
                 <button class="btn-sm btn-delete"  onclick="eliminaDefinitivo('${d.id}')">✕</button>
               </div>
             </div>
@@ -979,11 +1026,11 @@
 
     bindDrag();
 
-    // ── Corrente
-    const corrente = fatte[0];
+    // ── Corrente — prima domanda approvata in cima alla lista
+    const corrente = approvate[0];
     document.getElementById('currentQuestion').innerHTML = corrente
       ? `<span class="highlight-text">"${escHtml(corrente.testo)}"</span>`
-      : '<span class="highlight-empty">Nessuna domanda in corso</span>';
+      : '<span class="highlight-empty">Nessuna domanda approvata</span>';
 
     // ── Fatte
     document.getElementById('listFatte').innerHTML = fatte.length === 0 ? ''
@@ -1044,12 +1091,11 @@
     catch(e) { console.error(e); showToast('Errore — riprova', 'error'); }
   }
 
-  window.approva    = id => withExitAnim(id, () => safeUpdate(id, {stato:'approvata'}));
-  window.segnaFatta = id => withExitAnim(id, () => safeUpdate(id, {stato:'fatta'}));
-  window.riporta    = id => withExitAnim(id, () => safeUpdate(id, {stato:'in_attesa'}));
-  window.elimina    = id => withExitAnim(id, () => safeUpdate(id, {stato:'cestino'}));
-  window.ripristina = id => withExitAnim(id, () => safeUpdate(id, {stato:'in_attesa'}));
-  window.eliminaDefinitivo = id => withExitAnim(id, () => safeDelete(id));
+  window.approva          = id => withExitAnim(id, () => safeUpdate(id, {stato:'approvata'}));
+  window.segnaFatta       = id => withExitAnim(id, () => safeUpdate(id, {stato:'fatta'}));
+  window.riporta          = id => withExitAnim(id, () => safeUpdate(id, {stato:'in_attesa'}));
+  window.elimina          = id => withExitAnim(id, () => safeUpdate(id, {stato:'cestino'}));
+  window.eliminaDefinitivo= id => withExitAnim(id, () => safeDelete(id));
 
   // ── TRASH DRAWER ─────────────────────────────────────────
   window.toggleDrawer = function() {
@@ -1078,13 +1124,14 @@
     editingId = null;
   };
 
-  window.salvaModifica = async function() {
+  window.salvaModifica = async function(approva = true) {
     if (!editingId) return;
     const nuovoTesto = document.getElementById('modalTextarea').value.trim();
     if (!nuovoTesto) return;
-    await safeUpdate(editingId, { testo: nuovoTesto, stato: 'approvata' });
+    const nuovoStato = approva ? 'approvata' : 'in_attesa';
+    await safeUpdate(editingId, { testo: nuovoTesto, stato: nuovoStato });
     chiudiModal();
-    showToast('✓ Domanda modificata e approvata', 'success');
+    showToast(approva ? '✓ Modificata e approvata' : '✓ Modificata — in attesa', 'success');
   };
 
   // Chiudi modal cliccando fuori
@@ -1094,13 +1141,17 @@
 
   // ── ESPORTA SESSIONE ──────────────────────────────────────
   window.esportaSessione = function() {
-    const docs  = Object.values(allDocs);
-    const fatte = docs.filter(d => d.stato==='fatta')
-                      .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
-    const tutte = docs.filter(d => d.stato!=='fatta')
-                      .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const docs    = Object.values(allDocs);
+    const fatte   = docs.filter(d => d.stato==='fatta')
+                        .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const attesa  = docs.filter(d => d.stato==='in_attesa')
+                        .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
+    const approv  = docs.filter(d => d.stato==='approvata')
+                        .sort((a,b)=>(a.timestamp?.seconds||0)-(b.timestamp?.seconds||0));
 
-    if (docs.length === 0) { showToast('Nessuna domanda da esportare', 'error'); return; }
+    const attive  = [...attesa, ...approv];
+    const esporta = [...fatte, ...attive];
+    if (esporta.length === 0) { showToast('Nessuna domanda da esportare', 'error'); return; }
 
     const data = new Date().toLocaleDateString('it-IT');
     let testo  = `LIVING CHURCH — Domande del ${data}\n`;
@@ -1112,10 +1163,11 @@
       fatte.forEach((d, i) => { testo += `${i+1}. ${d.testo}\n`; });
       testo += '\n';
     }
-    if (tutte.length > 0) {
-      testo += `ALTRE DOMANDE (${tutte.length})\n`;
+    if (attive.length > 0) {
+      testo += `DOMANDE NON TRATTATE (${attive.length})\n`;
       testo += '─'.repeat(30) + '\n';
-      tutte.forEach((d, i) => { testo += `${i+1}. [${d.stato}] ${d.testo}\n`; });
+      attive.forEach((d, i) => { testo += `${i+1}. ${d.testo}\n`; });
+      testo += '\n';
     }
 
     const blob = new Blob([testo], { type:'text/plain;charset=utf-8' });
@@ -1128,15 +1180,33 @@
     showToast('✓ File scaricato', 'success');
   };
 
+  // ── CONFIRM MODAL ─────────────────────────────────────────
+  window.chiudiConfirm = function() {
+    document.getElementById('confirmModal').classList.add('hidden');
+  };
+
+  function showConfirm(title, text, onOk) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmText').textContent  = text;
+    const okBtn = document.getElementById('confirmOkBtn');
+    okBtn.onclick = () => { chiudiConfirm(); onOk(); };
+    document.getElementById('confirmModal').classList.remove('hidden');
+  }
+
   // ── CLEAR ALL ─────────────────────────────────────────────
-  window.clearAll = async () => {
-    if (!confirm('Eliminare tutte le domande della sessione, incluso il cestino? L\'azione è irreversibile.')) return;
-    try {
-      const snap = await getDocs(collection(db,'domande'));
-      await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
-      document.getElementById('trashDrawer').classList.remove('open');
-      document.getElementById('drawerOverlay').classList.remove('open');
-    } catch(e) { showToast('Errore durante lo svuotamento', 'error'); }
+  window.clearAll = () => {
+    showConfirm(
+      'Reset sessione',
+      'Tutte le domande verranno eliminate definitivamente, incluso il cestino. Questa azione è irreversibile.',
+      async () => {
+        try {
+          const snap = await getDocs(collection(db,'domande'));
+          await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+          document.getElementById('trashDrawer').classList.remove('open');
+          document.getElementById('drawerOverlay').classList.remove('open');
+        } catch(e) { showToast('Errore durante il reset', 'error'); }
+      }
+    );
   };
 
   // ── KEYBOARD SHORTCUTS ───────────────────────────────────
@@ -1156,7 +1226,11 @@
     if (e.key==='Delete') {
       if (attesa.length > 0) { elimina(attesa[0].id); showToast('✕ Domanda eliminata', 'error'); }
     }
-    if (e.key==='Escape') { chiudiModal(); if(!document.getElementById('shortcutsModal').classList.contains('hidden')) toggleShortcuts(); }
+    if (e.key==='Escape') {
+      chiudiModal();
+      chiudiConfirm();
+      if (!document.getElementById('shortcutsModal').classList.contains('hidden')) toggleShortcuts();
+    }
   });
 
   // ── LISTENER ─────────────────────────────────────────────
