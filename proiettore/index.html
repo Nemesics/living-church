@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Living Q&A — Proiettore</title>
+<link rel="stylesheet" href="../assets/css/shared.css">
+<link rel="stylesheet" href="../assets/css/proiettore.css">
+</head>
+<body>
+
+<div class="stage">
+  <div class="canvas">
+
+    <!-- IDLE: nessuna domanda in corso -->
+    <div class="idle-screen visible" id="idleScreen">
+      <div class="idle-dot"></div>
+    </div>
+
+    <!-- DOMANDA IN CORSO -->
+    <div class="question-screen" id="questionScreen">
+      <div class="question-block" id="questionBlock">
+        <div class="question-bar" id="questionBar"></div>
+        <p class="question-text" id="questionText"></p>
+      </div>
+    </div>
+
+    <!-- BADGE LIVE -->
+    <div class="live-badge" id="liveBadge">
+      <div class="live-badge__dot"></div>
+      <span class="live-badge__label">In corso</span>
+    </div>
+
+    <!-- BOTTONE FULLSCREEN -->
+    <button class="fs-btn" id="fsBtn" onclick="toggleFullscreen()" title="Schermo intero">
+      <svg id="fsIconEnter" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+        <path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+      </svg>
+      <svg id="fsIconExit" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/>
+        <path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
+      </svg>
+    </button>
+
+  </div>
+</div>
+
+<!-- FIREBASE + LOGICA -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import {
+    getFirestore, collection, query, where, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyApq1nm6YDTHguHKF1rwAKa7Jxkr1hU7hU",
+    authDomain: "living-church.firebaseapp.com",
+    projectId: "living-church",
+    storageBucket: "living-church.firebasestorage.app",
+    messagingSenderId: "779934743570",
+    appId: "1:779934743570:web:fa7b9ddb63f5182d17eccb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const idleScreen     = document.getElementById('idleScreen');
+  const questionScreen = document.getElementById('questionScreen');
+  const questionText   = document.getElementById('questionText');
+  const liveBadge      = document.getElementById('liveBadge');
+  const fsBtn          = document.getElementById('fsBtn');
+  const fsIconEnter    = document.getElementById('fsIconEnter');
+  const fsIconExit     = document.getElementById('fsIconExit');
+
+  let currentText  = null;
+  let hideTimer    = null;
+
+  // ── FULLSCREEN ─────────────────────────────────────────────
+  window.toggleFullscreen = function() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => console.warn('Fullscreen error:', err));
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  document.addEventListener('fullscreenchange', () => {
+    const isFs = !!document.fullscreenElement;
+    fsIconEnter.style.display = isFs ? 'none'  : '';
+    fsIconExit.style.display  = isFs ? ''      : 'none';
+  });
+
+  // Auto-hide del pulsante dopo 3s di inattività — ricompare al movimento
+  function showFsBtn() {
+    fsBtn.classList.add('visible');
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => fsBtn.classList.remove('visible'), 3000);
+  }
+
+  document.addEventListener('mousemove',  showFsBtn);
+  document.addEventListener('touchstart', showFsBtn, { passive: true });
+  // Mostra subito al caricamento
+  showFsBtn();
+
+  // ── DOMANDA ────────────────────────────────────────────────
+  function showQuestion(testo) {
+    if (currentText === testo) return;
+    currentText = testo;
+
+    if (questionScreen.classList.contains('visible')) {
+      questionScreen.classList.remove('visible');
+      setTimeout(() => updateAndShow(testo), 720);
+    } else {
+      updateAndShow(testo);
+    }
+  }
+
+  function updateAndShow(testo) {
+    questionText.textContent = testo;
+    questionText.classList.toggle('short', testo.length < 60);
+    idleScreen.classList.remove('visible');
+    questionScreen.classList.add('visible');
+    liveBadge.classList.add('visible');
+  }
+
+  function showIdle() {
+    if (currentText === null) return;
+    currentText = null;
+    questionScreen.classList.remove('visible');
+    liveBadge.classList.remove('visible');
+    setTimeout(() => {
+      questionText.textContent = '';
+      idleScreen.classList.add('visible');
+    }, 720);
+  }
+
+  // ── LISTENER FIRESTORE ─────────────────────────────────────
+  onSnapshot(
+    query(collection(db, 'domande'), where('stato', '==', 'in_corso')),
+    snapshot => {
+      const docs = snapshot.docs.map(d => d.data());
+      if (docs.length > 0) {
+        showQuestion(docs[0].testo);
+      } else {
+        showIdle();
+      }
+    },
+    err => console.error('Errore Firestore proiettore:', err)
+  );
+</script>
+</body>
+</html>
